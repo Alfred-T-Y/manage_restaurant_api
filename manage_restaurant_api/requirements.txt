@@ -10,9 +10,11 @@ Django==5.2.4
 djangorestframework==3.16.0
 kombu==5.5.4
 packaging==25.0
+phonenumbers==9.0.8
 prompt_toolkit==3.0.51
 pyspark==3.5.5
 python-dateutil==2.9.0.post0
+python-dotenv==1.1.1
 redis==6.2.0
 six==1.17.0
 sqlparse==0.5.3
