@@ -2,3 +2,14 @@ pip freeze > requirements
 chmod +x ./entrypoint.sh
 docker-compose up -d --build
 docker-compose down
+
+# Supprime la base de données (par exemple db.sqlite3 ou reset la DB PostgreSQL)
+rm db.sqlite3  # si SQLite
+
+# Supprime les fichiers de migration
+find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
+find . -path "*/migrations/*.pyc" -delete
+
+# Recrée les migrations
+python manage.py makemigrations
+python manage.py migrate

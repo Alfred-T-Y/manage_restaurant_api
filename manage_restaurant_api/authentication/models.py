@@ -21,7 +21,7 @@ def normalize_phone(phone):
         return phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164)
     
     except NumberParseException as e:
-        raise ValueError("Numéro de téléphone mal formaté.") from e
+        raise ValueError("The phone number is in a invalid format") from e
 
 
 class UserManager(BaseUserManager):
@@ -33,7 +33,7 @@ class UserManager(BaseUserManager):
         if username is None:
             raise TypeError('The Name is required')
         if phonenumber is None:
-            raise TypeError('The Name is required')
+            raise TypeError('The phone number is required')
 
         user = self.model(
             email=self.normalize_email(email),
@@ -44,12 +44,12 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_superuser(self, email, username, password=None):
+    def create_superuser(self, email, username, phonenumber, password=None):
 
         if password is None:
             raise TypeError('The Password is required')
 
-        user = self.create_user(email, username, password)
+        user = self.create_user(email, username, phonenumber, password)
         user.is_superuser = True
         user.is_active = True
         user.is_staff = True
@@ -60,7 +60,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     username = models.CharField(max_length=255, unique=True, db_index=True)
     email = models.EmailField(max_length=255, unique=True, db_index=True)
-    phone_number = PhoneNumberField(unique=True, db_index=True, region=None)
+    phonenumber = PhoneNumberField(unique=True, db_index=True, region=None)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -68,7 +68,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email']  
+    REQUIRED_FIELDS = ['email','phonenumber']  
 
     objects = UserManager()
 
