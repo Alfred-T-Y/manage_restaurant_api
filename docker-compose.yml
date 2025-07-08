@@ -13,7 +13,7 @@ services:
     volumes: 
       - ./manage_restaurant_api:/app/
     ports:
-      - 8001:8000
+      - 8000:8000
     env_file:
       - manage_restaurant_api/.env
     depends_on:
@@ -23,6 +23,7 @@ services:
     container_name: celery_manage_restaurant
     build:
       context: ./manage_restaurant_api
+    command: celery --app=manage_restaurant_api worker -l INFO
     volumes: 
       - ./manage_restaurant_api:/app/
     env_file:

@@ -13,3 +13,10 @@ find . -path "*/migrations/*.pyc" -delete
 # Recrée les migrations
 python manage.py makemigrations
 python manage.py migrate
+
+# accéder au shell du container django
+docker exec -it django_manage_restaurant /bin/sh
+
+redis-server        # lance redis
+python manage.py runserver   # lance django
+celery -A manage_restaurant_api worker --loglevel=info # lance celery worker

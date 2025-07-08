@@ -7,6 +7,7 @@ click-didyoumean==0.3.1
 click-plugins==1.1.1.2
 click-repl==0.3.0
 Django==5.2.4
+django-phonenumber-field==8.1.0
 djangorestframework==3.16.0
 kombu==5.5.4
 packaging==25.0
