@@ -64,6 +64,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    is_owner = models.BooleanField(default=False)
+    is_manager = models.BooleanField(default=False)
+    is_waiter = models.BooleanField(default=False)
+    is_kitchenmanager = models.BooleanField(default=False)
+    is_deliver = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -82,3 +87,63 @@ class User(AbstractBaseUser, PermissionsMixin):
             'access':str(tokens.access_token)
         }"""
     
+#admin model
+class Owner(models.Model):
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='owner')
+    
+    def delete(self, *args, **kwargs):
+        for manager in self.managers.all():
+            manager.user.delete()
+        for waiter in self.waiters.all():
+            waiter.user.delete()
+        for kitchen_manager in self.kitchen_managers.all():
+            kitchen_manager.user.delete()
+        for deliver in self.delivers.all():
+            deliver.user.delete()
+        # Supprimer l'utilisateur lié
+        self.user.delete()
+        super().delete(*args, **kwargs)
+
+    def __str__(self):
+        return self.user.username
+    
+
+#manager model
+class Manager(models.Model):
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='manager')
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE, related_name='managers')
+    
+    def __str__(self):
+        return self.user.username
+
+
+#waiter model
+class Waiter(models.Model):
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='waiter')
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE, related_name='waiters')
+
+    def __str__(self):
+        return self.user.username
+
+
+#kitchen_manager model
+class KitchenManager(models.Model):
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='kitchen_manager')
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE, related_name='kitchen_managers')
+
+    def __str__(self):
+        return self.user.username
+    
+
+#deliver model
+class Deliver(models.Model):
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='deliver')
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE, related_name='delivers')
+
+    def __str__(self):
+        return self.user.username
