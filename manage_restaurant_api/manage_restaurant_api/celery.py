@@ -1,10 +1,13 @@
 import os
 from dotenv import load_dotenv
 from celery import Celery
+import django
 
 load_dotenv()
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "manage_restaurant_api.settings")
+
+django.setup() 
 
 app = Celery("manage_restaurant_api")
 

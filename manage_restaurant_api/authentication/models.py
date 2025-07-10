@@ -57,18 +57,23 @@ class UserManager(BaseUserManager):
         return user
 
 class User(AbstractBaseUser, PermissionsMixin):
-    
+
+    ROLE = [
+        ('OWNER','Owner'),
+        ('MANAGER','Manager'),
+        ('DELIVER','Deliver'),
+        ('KITCHENMANAGER','Kitchen_manager'),
+        ('WAITER','Waiter')
+    ]
+    category = models.CharField(choices=ROLE, max_length=255)
     username = models.CharField(max_length=255, unique=True, db_index=True)
     email = models.EmailField(max_length=255, unique=True, db_index=True)
     phonenumber = PhoneNumberField(unique=True, db_index=True, region=None)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-    is_owner = models.BooleanField(default=False)
-    is_manager = models.BooleanField(default=False)
-    is_waiter = models.BooleanField(default=False)
-    is_kitchenmanager = models.BooleanField(default=False)
-    is_deliver = models.BooleanField(default=False)
+    email_is_verified = models.BooleanField(default=False)
+    phonenumber_is_verified = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

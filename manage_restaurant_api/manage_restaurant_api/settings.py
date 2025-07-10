@@ -76,6 +76,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "manage_restaurant_api.wsgi.application"
 
+REST_FRAMEWORK={
+    'NON_FIELD_ERRORS_KEY': 'error',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -144,3 +150,9 @@ CACHES = {
         #"KEY_PREFIX": "manage_restaurant_api",
     }
 }
+
+EMAIL_USE_TLS=True
+EMAIL_HOST='smtp.gmail.com'
+EMAIL_PORT=587
+EMAIL_HOST_USER= os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD= os.getenv('EMAIL_HOST_PASSWORD')
