@@ -17,6 +17,11 @@ python manage.py migrate
 # accéder au shell du container django
 docker exec -it django_manage_restaurant /bin/sh
 
-redis-server        # lance redis
-python manage.py runserver   # lance django
-celery -A manage_restaurant_api worker --loglevel=info # lance celery worker
+# lance redis
+redis-server       
+# lance django
+python manage.py runserver   
+# lance celery worker
+celery -A manage_restaurant_api worker --loglevel=info 
+
+sudo ss -tulnp | grep 6379
