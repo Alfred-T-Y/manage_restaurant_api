@@ -5,7 +5,7 @@ from authentication.serializers import (RegisterSerializer,
     #RequestPasswordResetEmailSerializer, SetNewPasswordSerializer,
     #PasswordTokenCheckAPISerializer, LogoutSerializer
 from rest_framework.response import Response
-from asgiref.sync import sync_to_async
+
 
 # Create your views here.
 
@@ -15,14 +15,13 @@ class RegisterView(generics.GenericAPIView):
 
     serializer_class=RegisterSerializer
 
-    @sync_to_async
     def post(self, request):
         serializer = self.serializer_class(data=request.data,
             context={'request':request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        user_data = serializer.data
+        user_data = serializer.data.owner
 
         
         return Response(user_data, status=status.HTTP_201_CREATED)
@@ -32,8 +31,7 @@ class RegisterView(generics.GenericAPIView):
 class VerifyEmail(views.APIView):
     serializer_class = EmailVerificationSerializer
 
-    @sync_to_async
-    def get(self, request):
+    async def get(self, request):
 
         serializer = self.serializer_class(data=request.data,
             context={'request':request})

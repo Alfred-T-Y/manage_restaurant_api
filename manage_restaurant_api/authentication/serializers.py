@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from authentication.models import User
+from authentication.models import (User, Owner, Manager, Waiter, KitchenManager, Deliver)
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -10,6 +10,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from django.conf import settings
 import jwt
+from phonenumber_field.serializerfields import PhoneNumberField
 
 
 
@@ -19,15 +20,31 @@ class RegisterSerializer(serializers.ModelSerializer):
     username=serializers.CharField()
     password = serializers.CharField(
         max_length=68, min_length=6, write_only=True)
+    phonenumber= PhoneNumberField()
+    role = serializers.CharField()
     
     class Meta:
         model = User
-        fields = ['email', 'username', 'password']
+        fields = ['email', 'username', 'phonenumber', 'role','password']
 
     def validate(self, attrs):
+        ROLE = [
+            ('OWNER', 'Owner'),
+            ('MANAGER', 'Manager'),
+            ('DELIVER', 'Deliver'),
+            ('KITCHENMANAGER', 'Kitchen_manager'),
+            ('WAITER', 'Waiter')
+        ]
+        # Extraire uniquement les codes (la première partie de chaque tuple)
+        VALID_ROLE_KEYS = [key for key, _ in ROLE]
         username = attrs.get('username', '')
         email = attrs.get('email', '')
-
+        phonenumber = attrs.get('phonenumber','')
+        role = attrs.get('role','')
+        if role not in VALID_ROLE_KEYS:
+            raise serializers.ValidationError(
+                "This role isn't definied "
+            )
         if not re.match(r'^[^\d\W_]+( [^\d\W_]+)*$', username.strip(), re.UNICODE):
             raise serializers.ValidationError(
                 'The Name should only contain letters'
@@ -40,13 +57,19 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'this Name is already used'
             )
+        if User.objects.filter(phonenumber=phonenumber).exists():
+            raise serializers.ValidationError(
+                'this Phonenumber is already used'
+            )
         return attrs
 
-    
     def create(self, validated_data):
         request=self.context.get('request')
+        role=validated_data.get('role')
         user = User.objects.create_user(**validated_data)
-        token = RefreshToken.for_user(user).access_token
+        if role == 'OWNER':
+            owner = Owner.objects.create(user=user)
+        token = RefreshToken.for_user(owner).access_token
 
         current_site = get_current_site(request).domain
         relativeLink = reverse('email-verify')

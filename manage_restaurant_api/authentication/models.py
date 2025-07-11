@@ -9,24 +9,26 @@ from phonenumber_field.modelfields import PhoneNumberField
 #from rest_framework_simplejwt.tokens import RefreshToken
 
 
-def normalize_phone(phone):
-    try:
-        # On suppose que le numéro est au format international ou commence par +
-        parsed = phonenumbers.parse(phone, None)  # Pas de région forcée
 
-        if not phonenumbers.is_valid_number(parsed):
-            raise ValueError("Phone number invalid.")
-
-        # Retourne au format E.164 : +1234567890
-        return phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164)
-    
-    except NumberParseException as e:
-        raise ValueError("The phone number is in a invalid format") from e
 
 
 class UserManager(BaseUserManager):
+    def normalize_phone(self, phone):
+        try:
+            phone=str(phone)
+            # On suppose que le numéro est au format international ou commence par +
+            parsed = phonenumbers.parse(phone, None)  # Pas de région forcée
 
-    def create_user(self, email, username, phonenumber ,password=None):
+            if not phonenumbers.is_valid_number(parsed):
+                raise ValueError("Phone number invalid.")
+
+            # Retourne au format E.164 : +1234567890
+            return phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164)
+    
+        except NumberParseException as e:
+            raise ValueError("The phone number is in a invalid format") from e
+
+    def create_user(self, email, username, phonenumber, role=None,password=None):
         
         if email is None:
             raise TypeError('The Email is required')
@@ -37,19 +39,20 @@ class UserManager(BaseUserManager):
 
         user = self.model(
             email=self.normalize_email(email),
-            phonenumber=self.normalize_email(phonenumber),
-            username=username
+            phonenumber=self.normalize_phone(phonenumber),
+            username=username,
         )
+        role=role
         user.set_password("sal"+password+"age")
         user.save()
         return user
 
-    def create_superuser(self, email, username, phonenumber, password=None):
+    def create_superuser(self, email, username, phonenumber, role=None ,password=None):
 
         if password is None:
             raise TypeError('The Password is required')
 
-        user = self.create_user(email, username, phonenumber, password)
+        user = self.create_user(email, username, phonenumber,role, password)
         user.is_superuser = True
         user.is_active = True
         user.is_staff = True
@@ -65,7 +68,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('KITCHENMANAGER','Kitchen_manager'),
         ('WAITER','Waiter')
     ]
-    category = models.CharField(choices=ROLE, max_length=255)
+    role = models.CharField(choices=ROLE, max_length=255, null=True, blank=True)
     username = models.CharField(max_length=255, unique=True, db_index=True)
     email = models.EmailField(max_length=255, unique=True, db_index=True)
     phonenumber = PhoneNumberField(unique=True, db_index=True, region=None)

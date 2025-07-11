@@ -75,6 +75,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "manage_restaurant_api.wsgi.application"
+ASGI_APPLICATION = 'manage_restaurant_api.asgi.application'
 
 REST_FRAMEWORK={
     'NON_FIELD_ERRORS_KEY': 'error',
