@@ -42,7 +42,7 @@ class UserManager(BaseUserManager):
             phonenumber=self.normalize_phone(phonenumber),
             username=username,
         )
-        role=role
+        user.role=role
         user.set_password("sal"+password+"age")
         user.save()
         return user

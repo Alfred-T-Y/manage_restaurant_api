@@ -49,18 +49,34 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'The Name should only contain letters'
             )
-        if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError(
-                'This Email is already used'
-            )
-        if User.objects.filter(username=username).exists():
-            raise serializers.ValidationError(
-                'this Name is already used'
-            )
-        if User.objects.filter(phonenumber=phonenumber).exists():
-            raise serializers.ValidationError(
-                'this Phonenumber is already used'
-            )
+        
+        user=User.objects.filter(email=email).first()
+        if user is not None:
+            if user.is_verified:
+                raise serializers.ValidationError(
+                    'This Email is already used'
+                )
+            else:
+                user.delete()
+        
+        user=User.objects.filter(username=username).first()
+        if user is not None: 
+            if user.is_verified:
+                raise serializers.ValidationError(
+                    'this Name is already used'
+                )
+            else:
+                user.delete()
+        
+        user=User.objects.filter(phonenumber=phonenumber).first()
+        if user is not None:
+            if user.is_verified:
+                raise serializers.ValidationError(
+                    'this Phonenumber is already used'
+                )       
+            else:
+                user.delete()
+            
         return attrs
 
     def create(self, validated_data):
