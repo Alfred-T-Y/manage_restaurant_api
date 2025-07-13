@@ -22,26 +22,23 @@ class RegisterSerializer(serializers.ModelSerializer):
         max_length=68, min_length=6, write_only=True)
     phonenumber= PhoneNumberField()
     role = serializers.CharField()
-    
+    emailowner=serializers.EmailField(required=False, write_only=True)
+
     class Meta:
         model = User
-        fields = ['email', 'username', 'phonenumber', 'role','password']
+        fields = ['email', 'username', 'phonenumber', 'role','password','emailowner']
 
     def validate(self, attrs):
         ROLE = [
-            ('OWNER', 'Owner'),
-            ('MANAGER', 'Manager'),
-            ('DELIVER', 'Deliver'),
-            ('KITCHENMANAGER', 'Kitchen_manager'),
-            ('WAITER', 'Waiter')
+            'OWNER','MANAGER','DELIVER','KITCHENMANAGER','WAITER'
         ]
-        # Extraire uniquement les codes (la première partie de chaque tuple)
-        VALID_ROLE_KEYS = [key for key, _ in ROLE]
+        
         username = attrs.get('username', '')
         email = attrs.get('email', '')
         phonenumber = attrs.get('phonenumber','')
         role = attrs.get('role','')
-        if role not in VALID_ROLE_KEYS:
+
+        if role not in ROLE:
             raise serializers.ValidationError(
                 "This role isn't definied "
             )
@@ -82,10 +79,26 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request=self.context.get('request')
         role=validated_data.get('role')
+        emailowner = validated_data.pop('emailowner', None)
         user = User.objects.create_user(**validated_data)
+        owner = None
+        if emailowner is not None:
+            owner = Owner.objects.filter(user__email=emailowner).first()
+            if not owner:
+                raise serializers.ValidationError({'error':'There is no owner with this email'})
+
         if role == 'OWNER':
-            owner = Owner.objects.create(user=user)
-        token = RefreshToken.for_user(owner).access_token
+            Owner.objects.create(user=user)
+        if role == 'MANAGER':
+            Manager.objects.create(user=user,owner=owner)
+        if role == 'KITCHENMANAGER':
+            KitchenManager.objects.create(user=user,owner=owner)
+        if role == 'WAITER':
+            Waiter.objects.create(user=user,owner=owner)
+        if role == 'DELIVER':
+            Deliver.objects.create(user=user,owner=owner)
+
+        token = RefreshToken.for_user(user).access_token
 
         current_site = get_current_site(request).domain
         relativeLink = reverse('email-verify')

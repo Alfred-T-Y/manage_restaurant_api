@@ -30,7 +30,7 @@ class RegisterView(generics.GenericAPIView):
 class VerifyEmail(views.APIView):
     serializer_class = EmailVerificationSerializer
 
-    async def get(self, request):
+    def get(self, request):
 
         serializer = self.serializer_class(data=request.data,
             context={'request':request})
