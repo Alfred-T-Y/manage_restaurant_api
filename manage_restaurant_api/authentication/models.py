@@ -6,6 +6,7 @@ from django.contrib.auth.models import (
 import phonenumbers
 from phonenumbers.phonenumberutil import NumberParseException
 from phonenumber_field.modelfields import PhoneNumberField
+import shortuuid
 #from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -72,6 +73,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True, db_index=True)
     email = models.EmailField(max_length=255, unique=True, db_index=True)
     phonenumber = PhoneNumberField(unique=True, db_index=True, region=None)
+    short_id = models.CharField(max_length=22, default=shortuuid.uuid, unique=True, editable=False)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)

@@ -22,11 +22,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         max_length=68, min_length=6, write_only=True)
     phonenumber= PhoneNumberField()
     role = serializers.CharField()
-    emailowner=serializers.EmailField(required=False, write_only=True)
+    short_id=serializers.CharField(required=False, write_only=True)
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'phonenumber', 'role','password','emailowner']
+        fields = ['email', 'username', 'phonenumber', 'role','password','short_id']
 
     def validate(self, attrs):
         ROLE = [
@@ -79,13 +79,13 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request=self.context.get('request')
         role=validated_data.get('role')
-        emailowner = validated_data.pop('emailowner', None)
+        short_id = validated_data.pop('short_id', None)
         user = User.objects.create_user(**validated_data)
         owner = None
-        if emailowner is not None:
-            owner = Owner.objects.filter(user__email=emailowner).first()
+        if short_id is not None:
+            owner = Owner.objects.filter(user__short_id=short_id).first()
             if not owner:
-                raise serializers.ValidationError({'error':'There is no owner with this email'})
+                raise serializers.ValidationError({'error':'There is no owner with this ID'})
 
         if role == 'OWNER':
             Owner.objects.create(user=user)
