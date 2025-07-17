@@ -1,9 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics, status, views
-from authentication.serializers import (RegisterSerializer, 
-    EmailVerificationSerializer,) #LoginSerializer, 
-    #RequestPasswordResetEmailSerializer, SetNewPasswordSerializer,
-    #PasswordTokenCheckAPISerializer, LogoutSerializer
+from authentication.serializers import *
 from rest_framework.response import Response
 
 
@@ -36,4 +33,17 @@ class VerifyEmail(views.APIView):
             context={'request':request})
         serializer.is_valid(raise_exception=True)
         
-        return Response({'email': 'Sucessfully actived'}, status=status.HTTP_200_OK)
+        return Response({'email': 'Sucessfully verified'}, status=status.HTTP_200_OK)
+    
+
+
+class VerifPhonenumber(views.APIView):
+    serializer_class = PhonenumberVerificationSerializer
+
+    def get(self, request):
+
+        serializer = self.serializer_class(data=request.data,
+            context={'request':request})
+        serializer.is_valid(raise_exception=True)
+        
+        return Response({'phonenumber': 'Sucessfully verified'}, status=status.HTTP_200_OK)

@@ -7,6 +7,7 @@ import phonenumbers
 from phonenumbers.phonenumberutil import NumberParseException
 from phonenumber_field.modelfields import PhoneNumberField
 import shortuuid
+import random
 #from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -28,6 +29,7 @@ class UserManager(BaseUserManager):
     
         except NumberParseException as e:
             raise ValueError("The phone number is in a invalid format") from e
+
 
     def create_user(self, email, username, phonenumber, role=None,password=None):
         
@@ -74,6 +76,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True, db_index=True)
     phonenumber = PhoneNumberField(unique=True, db_index=True, region=None)
     short_id = models.CharField(max_length=22, default=shortuuid.uuid, unique=True, editable=False)
+    otp = models.CharField(max_length=4, default=str(random.randint(1000, 9999)))
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)

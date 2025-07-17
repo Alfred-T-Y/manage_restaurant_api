@@ -3,7 +3,7 @@ from authentication.models import (User, Owner, Manager, Waiter, KitchenManager,
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from authentication.tasks import send_email
+from authentication.tasks import *
 import re
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.sites.shortcuts import get_current_site
@@ -88,6 +88,8 @@ class RegisterSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({'error':'There is no owner with this ID'})
 
         if role == 'OWNER':
+            user.is_active = True
+            user.save()
             Owner.objects.create(user=user)
         if role == 'MANAGER':
             Manager.objects.create(user=user,owner=owner)
@@ -99,15 +101,20 @@ class RegisterSerializer(serializers.ModelSerializer):
             Deliver.objects.create(user=user,owner=owner)
 
         token = RefreshToken.for_user(user).access_token
+        otp = str(user.otp)
+        phonenumber = str(user.phonenumber)
+        message = 'Code de verification \t'+otp
+        data_sms = {'message': message, 'to': phonenumber}
 
         current_site = get_current_site(request).domain
         relativeLink = reverse('email-verify')
         absurl = 'http://'+current_site+relativeLink+'?token='+str(token)
         email_body = 'Use this link below to verify your Email \n\n'+absurl
-        data = {'email_body': email_body, 'to_email':user.email,
+        data_email = {'email_body': email_body, 'to_email':user.email,
                 'email_subject': 'Verify your Email'}
 
-        send_email.delay(data)
+        send_email.delay(data_email)
+        send_sms.delay(data_sms)
         return user
     
 
@@ -136,4 +143,31 @@ class EmailVerificationSerializer(serializers.Serializer):
         except jwt.exceptions.DecodeError as identifier:
             
             raise AuthenticationFailed('Invalid token')
+        return attrs 
+    
+
+class PhonenumberVerificationSerializer(serializers.Serializer):
+
+    def validate(self, attrs):
+
+        request=self.context.get('request')
+        phonenumber = request.GET.get('phonenumber')
+        otp = request.GET.get('otp')
+        user = User.objects.get(phonenumber=phonenumber)
+
+        if not user.phonenumber_is_verified:
+            
+            if otp == user.otp:    
+                user.phonenumber_is_verified = True
+                user.save()
+            else:
+                raise serializers.ValidationError(
+                    'invalid code'
+                )
+
+        if user.email_is_verified and user.phonenumber_is_verified:
+            user.is_verified = True
+            user.save()
+
+  
         return attrs 
