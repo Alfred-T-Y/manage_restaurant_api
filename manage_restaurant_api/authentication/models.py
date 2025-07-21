@@ -8,7 +8,7 @@ from phonenumbers.phonenumberutil import NumberParseException
 from phonenumber_field.modelfields import PhoneNumberField
 import shortuuid
 import random
-#from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 
@@ -93,12 +93,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.username
 
-    """def tokens(self):
+    def tokens(self):
         tokens = RefreshToken.for_user(self)
         return {
             'refresh':str(tokens),
             'access':str(tokens.access_token)
-        }"""
+        }
     
 #admin model
 class Owner(models.Model):

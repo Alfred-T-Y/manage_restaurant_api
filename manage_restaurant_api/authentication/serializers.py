@@ -171,3 +171,47 @@ class PhonenumberVerificationSerializer(serializers.Serializer):
 
   
         return attrs 
+    
+
+class LoginSerializer(serializers.ModelSerializer):
+
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+    username = serializers.CharField(read_only=True)
+
+    class Meta():
+        model = User
+        fields = ['email', 'password', 'username', 'tokens']
+
+    def validate(self, attrs):
+        email = attrs.get('email', '')
+        password = 'sal'+attrs.get('password', '')+'age'
+
+        user = User.objects.filter(email=email).first()
+
+
+        if user is None:
+            raise AuthenticationFailed(
+                'Email incorrect'
+            )
+        if not check_password(password, user.password):
+            raise AuthenticationFailed(
+                'Password incorrect'
+                )
+        if not user.is_active:
+            raise AuthenticationFailed(
+                'Wait for your employer to active your account'
+            )
+        if not user.email_is_verified:
+            raise (
+                'Your Email is not verified'
+            )
+        if not user.phonenumber_is_verified:
+            raise (
+                'Your Phonenumber is not verified'
+            )
+        return{
+            'email': user.email,
+            'username': user.username,
+            'tokens': user.tokens(),
+        }
