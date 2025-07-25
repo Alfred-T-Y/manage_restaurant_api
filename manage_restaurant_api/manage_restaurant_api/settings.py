@@ -43,12 +43,16 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "corsheaders",
     "django.contrib.staticfiles",
+    "rest_framework_simplejwt.token_blacklist",
     "rest_framework",
     "authentication"
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -87,7 +91,7 @@ REST_FRAMEWORK={
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=4),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7), 
 }
 
 # Database
@@ -157,6 +161,8 @@ CACHES = {
         #"KEY_PREFIX": "manage_restaurant_api",
     }
 }
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 EMAIL_USE_TLS=True
 EMAIL_HOST='smtp.gmail.com'
