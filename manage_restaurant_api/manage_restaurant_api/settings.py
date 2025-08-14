@@ -146,15 +146,16 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-#CELERY_BROKER_URL = os.getenv("CELERY_BROKER","redis://redis:6379/0")
-#CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND","redis://redis:6379/0")
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER","redis://127.0.0.1:6379/0")
-CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND","redis://127.0.0.1:6379/0")
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER","redis://redis:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND","redis://redis:6379/0")
+#CELERY_BROKER_URL = os.getenv("CELERY_BROKER","redis://127.0.0.1:6379/0")
+#CELERY_RESULT_BACKEND = os.getenv("CELERY_BACKEND","redis://127.0.0.1:6379/0")
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.getenv("REDIS_CACHE_URL", "redis://127.0.0.1:6379/0"),
+        #"LOCATION": os.getenv("REDIS_CACHE_URL", "redis://127.0.0.1:6379/0"),
+        "LOCATION": os.getenv("REDIS_CACHE_URL", "redis://redis:6379/0"),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
