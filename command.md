@@ -29,3 +29,5 @@ sudo ss -tulnp | grep 6379
 daphne manage_restaurant_api.asgi:application
 
 git pull origin main
+
+docker-compose -f docker-compose.yml up -d --build
