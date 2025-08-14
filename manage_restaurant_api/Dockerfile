@@ -11,6 +11,7 @@ RUN pip install -r requirements.txt --timeout 10000
 
 COPY ./entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
+RUN ls
 
 COPY . /app/
 
