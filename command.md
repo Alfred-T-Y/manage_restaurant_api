@@ -27,3 +27,5 @@ celery -A manage_restaurant_api worker --loglevel=info
 sudo ss -tulnp | grep 6379
 
 daphne manage_restaurant_api.asgi:application
+
+git pull origin main
