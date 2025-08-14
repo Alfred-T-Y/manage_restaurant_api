@@ -13,4 +13,4 @@ COPY ./entrypoint.sh /app/entrypoint.sh
 
 COPY . /app/
 
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
