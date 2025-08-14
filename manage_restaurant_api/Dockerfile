@@ -10,7 +10,8 @@ COPY ./requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt --timeout 10000
 
 COPY ./entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 COPY . /app/
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]
