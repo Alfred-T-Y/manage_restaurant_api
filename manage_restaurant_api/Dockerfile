@@ -14,4 +14,4 @@ RUN chmod +x /app/entrypoint.sh
 
 COPY . /app/
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["/bin/ash", "-c", "/app/entrypoint.sh"]
