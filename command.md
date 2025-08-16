@@ -49,3 +49,12 @@ docker rm -f $(docker ps -aq) 2>/dev/null || true
 
 # Relancer
 docker compose up --build
+
+alias dcl='docker compose -f docker-compose.yml'
+# arreter
+dcl down
+# mettre à jour 
+dcl up -d --build
+# démarrer
+dcl up -d
+

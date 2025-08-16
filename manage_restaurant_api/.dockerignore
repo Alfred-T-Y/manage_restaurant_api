@@ -1,0 +1,23 @@
+venv
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtualenv
+venv
+.env
+
+
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+
+#circle ci
+.circleci
