@@ -3,8 +3,8 @@ services:
   redis:
     image: redis:7.0.14-alpine
     restart: unless-stopped
-  volumes:
-    - redis_data:/data
+    volumes:
+      - redis_data:/data
 
   django:
     container_name: django_manage_restaurant
