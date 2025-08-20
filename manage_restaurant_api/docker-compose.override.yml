@@ -10,7 +10,7 @@ services:
     container_name: django_manage_restaurant
     restart: unless-stopped
     build: .
-    entrypoint: /manage_restaurant_api/entrypoint.sh
+    entrypoint: ["/manage_restaurant_api/entrypoint.sh"]
     command: gunicorn manage_restaurant_api.asgi:application --workers 3 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
     volumes: 
       - .:/app/
