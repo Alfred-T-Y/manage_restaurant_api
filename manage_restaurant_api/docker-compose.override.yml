@@ -1,0 +1,106 @@
+services:
+
+  redis:
+    image: redis:7.0.14-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+  django:
+    container_name: django_manage_restaurant
+    restart: unless-stopped
+    build: .
+    command: gunicorn manage_restaurant_api.asgi:application --workers 3 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+    volumes: 
+      - .:/app/
+      - static_data:/app/staticfiles
+      - media_data:/app/media
+    expose:
+      - "8000"
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - DEBUG=True
+      - SECRET_KEY
+      - EMAIL_HOST_USER 
+      - EMAIL_HOST_PASSWORD
+      - TWILIO_PHONENUMBER
+      - TWILIO_SID
+      - TWILIO_TOKEN
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+    depends_on:
+      - redis
+      - pgbouncer
+
+  celery:
+    container_name: celery_manage_restaurant
+    restart: unless-stopped
+    build: .
+    command: celery --app=manage_restaurant_api worker -l INFO
+    volumes: 
+      - .:/app/
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - DEBUG
+      - SECRET_KEY
+      - EMAIL_HOST_USER 
+      - EMAIL_HOST_PASSWORD
+      - TWILIO_PHONENUMBER
+      - TWILIO_SID
+      - TWILIO_TOKEN
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+    depends_on:
+      - redis
+
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  pgbouncer:
+    image: edoburu/pgbouncer:v1.24.1-p1
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "6432:6432"
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      POOL_MODE: session
+      MAX_CLIENT_CONN: 100
+      DEFAULT_POOL_SIZE: 20
+
+  nginx:
+    image: nginx:1.29.0
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_data:/static:ro
+      - media_data:/app/media
+    depends_on:
+      - django
+
+
+volumes:
+  pgdata:
+  redis_data:
+  static_data:
+  media_data:

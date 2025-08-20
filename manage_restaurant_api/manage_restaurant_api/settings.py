@@ -174,6 +174,12 @@ CACHES = {
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "https://monapi.com",
+]
+
+
 EMAIL_USE_TLS=True
 EMAIL_HOST='smtp.gmail.com'
 EMAIL_PORT=587
