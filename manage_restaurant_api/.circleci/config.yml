@@ -12,9 +12,7 @@ jobs:
       - setup_remote_docker
       - run:
           name: Build docker images
-          command: |
-            cd ./managa_restaurant_api
-            docker-compose -f docker-compose.override.yml up -d --build
+          command: docker-compose -f docker-compose.override.yml up -d --build
 
 
 workflows:
