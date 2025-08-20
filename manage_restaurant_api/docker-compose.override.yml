@@ -10,6 +10,7 @@ services:
     container_name: django_manage_restaurant
     restart: unless-stopped
     build: .
+    entrypoint: ./entrypoint.sh
     command: gunicorn manage_restaurant_api.asgi:application --workers 3 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
     volumes: 
       - .:/app/
@@ -81,10 +82,10 @@ services:
     ports:
       - "6432:6432"
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      POOL_MODE: session
-      MAX_CLIENT_CONN: 100
-      DEFAULT_POOL_SIZE: 20
+      - DATABASE_URL
+      - POOL_MODE
+      - MAX_CLIENT_CONN
+      - DEFAULT_POOL_SIZE
 
   nginx:
     image: nginx:1.29.0
