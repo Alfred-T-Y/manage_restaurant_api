@@ -11,9 +11,16 @@ services:
     restart: unless-stopped
     build: .
     entrypoint: ./entrypoint.sh
-    command: gunicorn manage_restaurant_api.asgi:application --workers 3 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+    command: >
+      gunicorn manage_restaurant_api.asgi:application
+      -k uvicorn.workers.UvicornWorker
+      -b 0.0.0.0:8000
+      --workers 3
+      --worker-connections 1000
+      --timeout 120
+      --graceful-timeout 30
+      --log-level info
     volumes: 
-      - .:/app/
       - static_data:/app/staticfiles
       - media_data:/app/media
     expose:
@@ -29,8 +36,6 @@ services:
     restart: unless-stopped
     build: .
     command: celery --app=manage_restaurant_api worker -l INFO
-    volumes: 
-      - .:/app/
     env_file:
       - .env
     depends_on:

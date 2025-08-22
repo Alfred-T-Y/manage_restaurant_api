@@ -13,11 +13,13 @@ venv
 .env
 .env*
 
-
-
 # Docker
 docker-compose*.yml
 Dockerfile*
+.dockerignore
 
-#circle ci
+# CircleCI
 .circleci
+
+# Tout autre .env dans sous-dossiers
+**/.env
