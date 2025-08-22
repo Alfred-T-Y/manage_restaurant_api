@@ -62,8 +62,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    ports:
-      - "6432:6432"
+    expose:
+      - "6432"
     env_file:
       - .env
 
