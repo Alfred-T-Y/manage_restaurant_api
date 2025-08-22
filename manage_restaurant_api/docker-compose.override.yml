@@ -98,7 +98,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - .manage_restaurant_api/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./manage_restaurant_api/nginx.conf:/etc/nginx/nginx.conf:ro
       - static_data:/static:ro
       - media_data:/app/media
     depends_on:
