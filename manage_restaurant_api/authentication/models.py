@@ -1,3 +1,4 @@
+import re
 from django.db import models
 
 # Create your models here.
@@ -15,6 +16,15 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class UserManager(BaseUserManager):
+
+    def normalize_username(self, name):
+        if not re.match(r'^[^\d\W_]+( [^\d\W_]+)*$', name.strip(), re.UNICODE):
+            raise ValueError(
+                'The Name should only contain letters'
+            )
+        else:
+            return name
+        
     def normalize_phone(self, phone):
         try:
             phone=str(phone)
@@ -29,33 +39,44 @@ class UserManager(BaseUserManager):
     
         except NumberParseException as e:
             raise ValueError("The phone number is in a invalid format") from e
-
-
-    def create_user(self, email, username, phonenumber, role=None,password=None):
         
-        if email is None:
-            raise TypeError('The Email is required')
-        if username is None:
-            raise TypeError('The Name is required')
-        if phonenumber is None:
-            raise TypeError('The phone number is required')
 
-        user = self.model(
-            email=self.normalize_email(email),
-            phonenumber=self.normalize_phone(phonenumber),
-            username=username,
-        )
-        user.role=role
-        user.set_password("sal"+password+"age")
+    def normalize_role(self, role):
+        ROLE = [
+            'OWNER','MANAGER','DELIVER','KITCHENMANAGER','WAITER'
+        ]
+        if role not in ROLE:
+            raise ValueError(
+                "This role isn't definied "
+            )
+        else:
+            return role
+
+
+    def create_user(self, email=None, username=None, phonenumber=None, role=None,password=None):
+
+        if email is not None:
+            user = self.model(
+                email=self.normalize_email(email),
+                phonenumber=self.normalize_phone(phonenumber),
+                username=self.normalize_username(username),
+                role=self.normalize_role(role),
+            )
+        else:
+            user = self.model(
+                username=self.normalize_username(username),
+            )
+        user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, email, username, phonenumber, role=None ,password=None):
-
+    def create_superuser(self,username=None,password=None):
+        if username is None:
+            raise TypeError('The Name is required')
         if password is None:
             raise TypeError('The Password is required')
 
-        user = self.create_user(email, username, phonenumber,role, password)
+        user = self.create_user(username=username, password=password)
         user.is_superuser = True
         user.is_active = True
         user.is_staff = True
@@ -86,7 +107,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email','phonenumber']  
+    #REQUIRED_FIELDS = ['email','phonenumber']  
 
     objects = UserManager()
 

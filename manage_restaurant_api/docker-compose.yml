@@ -21,6 +21,7 @@ services:
       --graceful-timeout 30
       --log-level info
     volumes: 
+      - .:/app
       - static_data:/app/staticfiles
       - media_data:/app/media
     expose:

@@ -29,23 +29,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['email', 'username', 'phonenumber', 'role','password','short_id']
 
     def validate(self, attrs):
-        ROLE = [
-            'OWNER','MANAGER','DELIVER','KITCHENMANAGER','WAITER'
-        ]
         
         username = attrs.get('username', '')
         email = attrs.get('email', '')
         phonenumber = attrs.get('phonenumber','')
         role = attrs.get('role','')
-
-        if role not in ROLE:
-            raise serializers.ValidationError(
-                "This role isn't definied "
-            )
-        if not re.match(r'^[^\d\W_]+( [^\d\W_]+)*$', username.strip(), re.UNICODE):
-            raise serializers.ValidationError(
-                'The Name should only contain letters'
-            )
         
         user=User.objects.filter(email=email).first()
         if user is not None:
