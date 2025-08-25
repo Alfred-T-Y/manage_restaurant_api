@@ -10,12 +10,11 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - run: cd manage_restaurant_api
+      - run: ls -l ./nginx.conf
       - run:
           name: Build docker images
-          command: |
-            cd manage_restaurant_api
-            ls -l ./nginx.conf
-            docker-compose -f docker-compose.override.yml up -d --build
+          command: docker-compose -f docker-compose.override.yml up -d --build
 
 
 workflows:
