@@ -11,7 +11,9 @@ jobs:
       - checkout
       - setup_remote_docker
       - run: cd manage_restaurant_api
-      - run: ls -l ./manage_restaurant_api/nginx.conf
+      - run: |
+          cd manage_restaurant_api
+          ls -l ./manage_restaurant_api/nginx.conf
       - run:
           name: Build docker images
           command: docker-compose -f docker-compose.override.yml up -d --build
