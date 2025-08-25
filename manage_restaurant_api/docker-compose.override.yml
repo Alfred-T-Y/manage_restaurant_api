@@ -37,6 +37,8 @@ services:
       - TWILIO_TOKEN
       - POSTGRES_HOST
       - POSTGRES_PORT
+      - SUPERUSER_NAME
+      - SUPERUSER_PASSWORD
     depends_on:
       - redis
       - pgbouncer
