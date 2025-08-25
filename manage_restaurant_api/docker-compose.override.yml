@@ -95,12 +95,14 @@ services:
       - DEFAULT_POOL_SIZE
 
   nginx:
-    image: nginx:1.29.0
+    build: 
+      context: .      
+      dockerfile: nginx/Dockerfile 
+    container_name: nginx
     restart: unless-stopped
     ports:
       - "80:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - static_data:/static:ro
       - media_data:/app/media
     depends_on:
