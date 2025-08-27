@@ -58,5 +58,7 @@ sudo netstat -tulnp | grep :80
 sudo systemctl stop nginx
 sudo systemctl disable nginx
 
+docker build -t ghcr.io/alfred-t-y/manage_restaurant_api .
+
 
 
