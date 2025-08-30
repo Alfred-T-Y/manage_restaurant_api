@@ -47,6 +47,8 @@ docker rm -f $(docker ps -aq) 2>/dev/null || true
 docker compose up --build
 
 alias dcl='docker compose -f docker-compose.yml'
+alias dck='docker compose -f docker-compose.kube.yml'
+
 # arreter
 dcl down
 # mettre à jour 
