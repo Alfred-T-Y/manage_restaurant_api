@@ -1,6 +1,4 @@
 #!/bin/ash
-SUPERUSER_NAME=${SUPERUSER_NAME}
-SUPERUSER_PASSWORD=${SUPERUSER_PASSWORD}
 
 echo "Apply database migrations"
 python manage.py migrate 

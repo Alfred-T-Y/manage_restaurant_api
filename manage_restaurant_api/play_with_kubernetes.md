@@ -22,3 +22,22 @@ docker save manage_restaurant_django:latest -o manage_restaurant_django.tar
 
 #   pour la charger
 minikube image load manage_restaurant_django.tar
+
+#   export
+docker save manage_restaurant_celery:latest -o manage_restaurant_celery.tar
+docker save manage_restaurant_django:latest -o manage_restaurant_django.tar
+docker save manage_restaurant_nginx:latest -o manage_restaurant_nginx.tar
+docker save postgres:15 -o postgres.tar
+docker save redis:7.0.14-alpine -o redis.tar
+docker save edoburu/pgbouncer:v1.24.1-p1 -o pgbouncer.tar
+
+#   load
+minikube image load manage_restaurant_celery.tar
+minikube image load manage_restaurant_django.tar
+minikube image load manage_restaurant_nginx.tar
+minikube image load redis.tar
+minikube image load postgres.tar
+minikube image load pgbouncer.tar
+
+
+
