@@ -3,13 +3,16 @@ services:
   redis:
     image: redis:7.0.14-alpine
     restart: unless-stopped
+    container_name: redis
     volumes:
       - redis_data:/data
+
 
   django:
     container_name: django_manage_restaurant
     restart: unless-stopped
     build: .
+    image: ghcr.io/alfred-t-y/manage_restaurant_django
     entrypoint: ./entrypoint.sh
     command: >
       gunicorn manage_restaurant_api.asgi:application
@@ -40,8 +43,10 @@ services:
       - SUPERUSER_NAME
       - SUPERUSER_PASSWORD
     depends_on:
-      - redis
-      - pgbouncer
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   celery:
     container_name: celery_manage_restaurant
@@ -70,10 +75,11 @@ services:
       - POSTGRES_DB
       - POSTGRES_USER
       - POSTGRES_PASSWORD
-      - POSTGRES_HOST
-      - POSTGRES_PORT
+      - POSTGRES_HOST_AUTH_METHOD
+    expose:
+      - "5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d managerestaurantdb"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -81,18 +87,33 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   pgbouncer:
-    image: edoburu/pgbouncer:v1.24.1-p1
+    image: bitnami/pgbouncer:1.24.1-debian-12-r10
+    container_name: pgbouncer
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
     expose:
       - "6432"
-    environment:
-      - DATABASE_URL
-      - POOL_MODE
-      - MAX_CLIENT_CONN
-      - DEFAULT_POOL_SIZE
+    environment: 
+      - PGBOUNCER_AUTH_TYPE
+      - PGBOUNCER_AUTH_QUERY
+      - PGBOUNCER_AUTH_USER
+      - POSTGRESQL_HOST
+      - POSTGRESQL_PORT
+      - POSTGRESQL_USERNAME
+      - POSTGRESQL_PASSWORD
+      - POSTGRESQL_DATABASE
+      - PGBOUNCER_DATABASE
+      - PGBOUNCER_LISTEN_PORT
+      - PGBOUNCER_POOL_MODE
+      - PGBOUNCER_MAX_CLIENT_CONN
+      - PGBOUNCER_MAX_DB_CONNECTIONS
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/6432' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   nginx:
     build: 

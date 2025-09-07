@@ -32,7 +32,7 @@ services:
       - .env
     depends_on:
       pgbouncer:
-        condition: service_started
+        condition: service_healthy
       redis:
         condition: service_started
 
@@ -77,7 +77,12 @@ services:
       - "6432"
     env_file: 
       - .env 
-
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/6432' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
 
   nginx:
     build: 
@@ -100,5 +105,4 @@ volumes:
   redis_data:
   media_data:
   static_data:
-  pgbouncer_config:
 #until [ -f /opt/bitnami/pgbouncer/conf/userlist.txt -a -f /opt/bitnami/pgbouncer/conf/pgbouncer.ini ]; do sleep 2; done
