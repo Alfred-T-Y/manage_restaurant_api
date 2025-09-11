@@ -66,28 +66,57 @@ services:
       - pgdata:/var/lib/postgresql/data
 
 
-  pgbouncer:
-    image: bitnami/pgbouncer:1.24.1-debian-12-r10
-    container_name: pgbouncer
-    restart: unless-stopped
+  pgbouncer-init:
+    build: 
+        context: pgbouncer-init      
+        dockerfile: Dockerfile 
+    container_name: pgbouncer-init
+    restart: "no"
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - pgbouncer_config:/pgconf
+    command: >
+      sh -c '
+        apk add --no-cache postgresql-client &&
+        mkdir -p /pgconf &&
+        until pg_isready -h db -U admin; do sleep 2; done &&
+        echo "Génération de users.txt..." &&
+        psql -h db -U admin -d managerestaurantdb -t -A -c \
+        "SELECT '\''\"'\'' || usename || '\''\" \"'\'' || passwd || '\''\"'\'' FROM pg_shadow WHERE usename = '\''admin'\'';" \
+        > /pgconf/users.txt &&
+        echo "users.txt généré avec succès" &&
+        exit 0
+      '
+    env_file:  
+      - .env 
+
+
+  pgbouncer:
+    image: crunchydata/crunchy-pgbouncer:centos8-13.6-4.7.5
+    container_name: pgbouncer
+    restart: unless-stopped
+    depends_on:
+      pgbouncer-init:
+        condition: service_completed_successfully
     expose:
       - "6432"
-    env_file: 
-      - .env 
     healthcheck:
       test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/6432' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+    - pgbouncer_config:/pgconf
+    env_file:  
+      - .env 
       
 
   nginx:
     build: 
-      context: .      
-      dockerfile: nginx/Dockerfile 
+      context: nginx     
+      dockerfile: Dockerfile 
     container_name: nginx
     restart: unless-stopped
     image: ghcr.io/alfred-t-y/manage_restaurant_nginx
@@ -105,4 +134,5 @@ volumes:
   redis_data:
   media_data:
   static_data:
+  pgbouncer_config:
 #until [ -f /opt/bitnami/pgbouncer/conf/userlist.txt -a -f /opt/bitnami/pgbouncer/conf/pgbouncer.ini ]; do sleep 2; done
