@@ -122,13 +122,15 @@ services:
         condition: service_completed_successfully
     expose:
       - "6432"
-    environment: 
-      - PGBOUNCER_PASSWORD
     healthcheck:
       test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/6432' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+    - pgbouncer_config:/pgconf
+    env_file:  
+      - .env 
 
   nginx:
     build: 
@@ -150,3 +152,4 @@ volumes:
   redis_data:
   static_data:
   media_data:
+  pgbouncer_config:
