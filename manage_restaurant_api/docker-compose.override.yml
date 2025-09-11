@@ -129,8 +129,8 @@ services:
       retries: 5
     volumes:
     - pgbouncer_config:/pgconf
-    env_file:  
-      - .env 
+    environment:  
+      - PGBOUNCER_PASSWORD
 
   nginx:
     build: 
