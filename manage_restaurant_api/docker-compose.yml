@@ -110,7 +110,7 @@ services:
     volumes:
     - pgbouncer_config:/pgconf
     env_file:  
-      - .env 
+      - PGBOUNCER_PASSWORD
       
 
   nginx:
