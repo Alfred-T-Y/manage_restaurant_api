@@ -71,6 +71,7 @@ services:
         context: pgbouncer-init      
         dockerfile: Dockerfile 
     container_name: pgbouncer-init
+    image: ghcr.io/alfred-t-y/manage_restaurant_pgbouncer-init
     restart: "no"
     depends_on:
       db:
